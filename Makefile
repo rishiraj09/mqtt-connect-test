@@ -15,6 +15,27 @@ WIFI_PASS ?= "C7AkkbPh2NH9X7mCTAap2Y2Y"
 
 
 
+USEMODULE += gnrc_netif_default
+USEMODULE += auto_init_gnrc_netif
+USEMODULE += gnrc_sock_udp
+USEMODULE += gnrc_udp
+USEMODULE += gnrc_netif_event
+USEMODULE += gnrc_ipv6_default
+USEMODULE += gnrc_icmpv6_echo
+USEMODULE += gnrc_ipv6_router_default
+USEMODULE += gnrc_icmpv6_error
+USEMODULE += auto_init_gnrc_ipv6
+USEMODULE += gnrc_udp
+USEMODULE += gnrc_ipv6_router
+USEMODULE += gnrc_sock_udp
+USEMODULE += saul_default
+USEMODULE += fmt
+USEMODULE += gnrc_rpl
+USEMODULE += gnrc_netapi
+
+# MQTT-SN client
+USEMODULE += mqtt_sn
+
 # Modules to include
 USEMODULE += analog_util
 USEMODULE += periph_gpio
