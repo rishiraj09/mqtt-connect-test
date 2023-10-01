@@ -1,54 +1,70 @@
-# Name of the application
-APPLICATION = mqtt-connect-test
+APPLICATION = paho-mqtt-example
 
+# If no BOARD is found in the environment, use this default:
 BOARD ?= native
 
-RIOTBASE ?= $(CURDIR)/../../RIOT
+# This has to be the absolute path to the RIOT base directory:
+RIOTBASE ?= $(CURDIR)/../..
 
-CFLAGS += -DEVELHELP
+# Comment this out to disable code in RIOT that does safety checking
+# which is not needed in a production environment but helps in the
+# development process:
+DEVELHELP ?= 1
 
-# Change this to 0 to show compiler invocation lines by default
+# Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
-WIFI_SSID ?= "TIM-26374786"
-WIFI_PASS ?= "C7AkkbPh2NH9X7mCTAap2Y2Y"
+WIFI_SSID ?= "Your_WiFi_name"
+WIFI_PASS ?= "Your_secure_password"
 
+ifneq (,$(DEFAULT_MQTT_CLIENT_ID))
+  CFLAGS += -DDEFAULT_MQTT_CLIENT_ID=\"$(DEFAULT_MQTT_CLIENT_ID)\"
+endif
+ifneq (,$(DEFAULT_MQTT_USER))
+  CFLAGS += -DDEFAULT_MQTT_USER=\"$(DEFAULT_MQTT_USER)\"
+endif
+ifneq (,$(DEFAULT_MQTT_PWD))
+  CFLAGS += -DDEFAULT_MQTT_PWD=\"$(DEFAULT_MQTT_PWD)\"
+endif
 
-
-USEMODULE += gnrc_netif_default
-USEMODULE += auto_init_gnrc_netif
-USEMODULE += gnrc_sock_udp
-USEMODULE += gnrc_udp
-USEMODULE += gnrc_netif_event
-USEMODULE += gnrc_ipv6_default
-USEMODULE += gnrc_icmpv6_echo
-USEMODULE += gnrc_ipv6_router_default
-USEMODULE += gnrc_icmpv6_error
-USEMODULE += auto_init_gnrc_ipv6
-USEMODULE += gnrc_udp
-USEMODULE += gnrc_ipv6_router
-USEMODULE += gnrc_sock_udp
-USEMODULE += saul_default
-USEMODULE += fmt
-USEMODULE += gnrc_rpl
-USEMODULE += gnrc_netapi
-
-# MQTT-SN client
-USEMODULE += mqtt_sn
-
-# Modules to include
-USEMODULE += analog_util
-USEMODULE += periph_gpio
-USEMODULE += periph_gpio_irq
-USEMODULE += xtimer
-
-USEMODULE += fmt
+USEMODULE += shell
+USEMODULE += shell_commands
+USEMODULE += ps
+USEMODULE += netdev_default
 USEPKG += paho-mqtt
 
-FEATURES_REQUIRED += periph_gpio periph_adc periph_i2c
+# paho-mqtt depends on TCP support, choose the stack you want
+LWIP_IPV4 ?= 0
 
+ifneq (0,$(LWIP_IPV4))
+  USEMODULE += ipv4_addr
+  USEMODULE += lwip_arp
+  USEMODULE += lwip_ipv4
+  USEMODULE += lwip_dhcp_auto
+  CFLAGS += -DETHARP_SUPPORT_STATIC_ENTRIES=1
+  LWIP_IPV6 ?= 0
+else
+  LWIP_IPV6 ?= 1
+endif
 
-USEMODULE += ztimer
+ifneq (0,$(LWIP_IPV6))
+  USEMODULE += ipv6_addr
+  USEMODULE += lwip_ipv6_autoconfig
+endif
+
+USEMODULE += lwip_netdev
+USEMODULE += lwip
+
+USEMODULE += sock_async_event
+USEMODULE += sock_ip
+USEMODULE += sock_udp
+USEMODULE += sock_tcp
+
+####
 
 include $(RIOTBASE)/Makefile.include
 
+ifneq (,$(filter arch_esp,$(FEATURES_USED)))
+  CFLAGS += -DESP_WIFI_SSID=\"$(WIFI_SSID)\"
+  CFLAGS += -DESP_WIFI_PASS=\"$(WIFI_PASS)\"
+endif
